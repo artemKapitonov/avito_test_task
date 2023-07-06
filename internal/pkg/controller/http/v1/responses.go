@@ -11,3 +11,7 @@ type WrongResponse struct {
 func errorResponse(c *gin.Context, code int, msg string) {
 	c.AbortWithStatusJSON(code, WrongResponse{msg})
 }
+
+type StatusResponse struct {
+	Status string `json:"status"`
+}

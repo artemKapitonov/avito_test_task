@@ -2,6 +2,7 @@ package storage
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/artemKapitonov/avito_test_task/internal/pkg/entity"
@@ -15,19 +16,20 @@ type Account struct {
 func (a *Account) Create(ctx context.Context) (entity.User, error) {
 	var user entity.User
 
-	var id, balance uint64
+	var id uint64
 
 	createdDT := time.Now()
 
-	row := a.db.QueryRow(ctx, "insert  into users (balance, created_dt) values (0, $1) returning *;", createdDT)
+	query := fmt.Sprintf("insert  into %s (created_dt) values ($1) returning id, created_dt;", usersTable)
 
-	if err := row.Scan(&id, &balance, &createdDT); err != nil {
+	row := a.db.QueryRow(ctx, query, createdDT)
+
+	if err := row.Scan(&id, &createdDT); err != nil {
 		return user, err
 	}
 
 	user = entity.User{
 		ID:        id,
-		Balance:   balance,
 		CreatedDT: createdDT,
 	}
 	return user, nil
@@ -40,7 +42,9 @@ func (a *Account) GetByID(ctx context.Context, id uint64) (entity.User, error) {
 
 	var createdDT time.Time
 
-	row := a.db.QueryRow(ctx, "select * from users where id = $1;", id)
+	query := fmt.Sprintf("select * from %s where id = $1;", usersTable)
+
+	row := a.db.QueryRow(ctx, query, id)
 
 	if err := row.Scan(&id, &balance, &createdDT); err != nil {
 		return user, err

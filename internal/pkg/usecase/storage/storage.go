@@ -8,6 +8,12 @@ type Storage struct {
 	OperationHistory
 }
 
+const (
+	usersTable           = "users"
+	operationsTable      = "operations"
+	usersOperationsTable = "user_operations"
+)
+
 func New(db *pgxpool.Pool) *Storage {
 	return &Storage{
 		Account{db: db},
