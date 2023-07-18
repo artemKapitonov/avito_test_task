@@ -6,12 +6,16 @@ import (
 )
 
 type Controller struct {
-	UseCase usecase.UseCase
+	Account
+	Balance
+	OperationHistory
 }
 
 func New(usecase *usecase.UseCase) *Controller {
 	return &Controller{
-		UseCase: *usecase,
+		Account:          usecase.Account,
+		Balance:          usecase.Balance,
+		OperationHistory: usecase.OperationHistory,
 	}
 }
 
@@ -23,6 +27,8 @@ func (c *Controller) InitRoutes() *gin.Engine {
 		account.POST("/", c.createUser)
 		account.GET("/:id", c.userByID)
 		account.PUT("/:id", c.updateBalance)
+		account.PUT("/transfer/:sender_id/:recipient_id", c.transfer)
+
 	}
 	return router
 

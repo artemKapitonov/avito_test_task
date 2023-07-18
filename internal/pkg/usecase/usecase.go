@@ -2,7 +2,7 @@ package usecase
 
 import "github.com/artemKapitonov/avito_test_task/internal/pkg/usecase/storage"
 
-type UseCase struct {
+type  UseCase struct {
 	Account
 	Balance
 	OperationHistory

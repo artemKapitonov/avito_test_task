@@ -16,7 +16,7 @@ type Account interface {
 }
 
 func (c *Controller) createUser(ctx *gin.Context) {
-	user, err := c.UseCase.Account.Create(ctx)
+	user, err := c.Account.Create(ctx)
 	if err != nil {
 		errorResponse(ctx, http.StatusInternalServerError, fmt.Sprintf("Can't create user: %s", err.Error()))
 		return
@@ -34,7 +34,7 @@ func (c *Controller) userByID(ctx *gin.Context) {
 		return
 	}
 
-	user, err := c.UseCase.Account.GetByID(ctx, userID)
+	user, err := c.Account.GetByID(ctx, userID)
 	if err != nil {
 		errorResponse(ctx, http.StatusInternalServerError, fmt.Sprintf("Can't get user by id: %s", err.Error()))
 		return

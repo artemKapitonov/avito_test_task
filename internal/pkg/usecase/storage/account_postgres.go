@@ -38,7 +38,7 @@ func (a *Account) Create(ctx context.Context) (entity.User, error) {
 func (a *Account) GetByID(ctx context.Context, id uint64) (entity.User, error) {
 	var user entity.User
 
-	var balance uint64
+	var balance float64
 
 	var createdDT time.Time
 
