@@ -11,6 +11,7 @@ import (
 	"github.com/artemKapitonov/avito_test_task/internal/pkg/usecase/storage"
 	"github.com/artemKapitonov/avito_test_task/pkg/client/postgresql"
 	httpserver "github.com/artemKapitonov/avito_test_task/pkg/server"
+	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
@@ -31,6 +32,8 @@ func New() *App {
 	if err := godotenv.Load(".env"); err != nil {
 		logrus.Fatalf("can't load env: %s", err.Error())
 	}
+
+	gin.SetMode(gin.TestMode)
 
 	port := viper.GetString("port")
 

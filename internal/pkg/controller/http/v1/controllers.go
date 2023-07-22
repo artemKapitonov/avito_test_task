@@ -29,6 +29,10 @@ func (c *Controller) InitRoutes() *gin.Engine {
 		account.PUT("/:id", c.updateBalance)
 		account.PUT("/transfer/:sender_id/:recipient_id", c.transfer)
 
+		history := account.Group("/history")
+		{
+			history.GET("/:id", c.getHistory)
+		}
 	}
 	return router
 

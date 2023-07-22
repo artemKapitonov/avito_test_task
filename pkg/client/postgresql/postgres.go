@@ -47,6 +47,6 @@ func ConnectToDB(ctx context.Context, cfg Config) (*pgxpool.Pool, error) {
 		return nil, err
 	}
 
-	logrus.Println("Connection succes")
+	logrus.Println("Connection successful")
 	return db, nil
 }

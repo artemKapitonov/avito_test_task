@@ -3,6 +3,8 @@ package httpserver
 import (
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -33,5 +35,6 @@ func New(handler http.Handler, port string) *Server {
 }
 
 func (s *Server) Start() error {
+	logrus.Printf("Server start on Addr:  %s", s.server.Addr)
 	return s.server.ListenAndServe()
 }

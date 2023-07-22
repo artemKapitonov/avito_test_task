@@ -10,10 +10,10 @@ type (
 	}
 
 	Operation struct {
-		ID            uint64  `json:"id"`
-		OperationType string  `json:"operation_type"`
-		Amount        float64 `amount:"amount"`
-		Currency      string  `json:"currency"`
-		CreatedDT     int64   `json:"created_dt"`
+		ID            uint64    `json:"id"`
+		OperationType string    `json:"operation_type"`
+		Amount        float64   `amount:"amount"`
+		Currency      string    `json:"currency,default=rub"`
+		CreatedDT     time.Time `json:"created_dt"`
 	}
 )

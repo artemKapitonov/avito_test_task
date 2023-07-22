@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"math"
 	"time"
 
 	"github.com/artemKapitonov/avito_test_task/pkg/client/postgresql"
@@ -46,7 +47,7 @@ func (b *Balance) Update(ctx context.Context, userID uint64, amount float64) (er
 		return err
 	}
 
-	row := tx.QueryRow(ctx, operationQuery, operationType, amount, createdDT)
+	row := tx.QueryRow(ctx, operationQuery, operationType, math.Abs(amount), createdDT)
 	if err := row.Scan(&operationID); err != nil {
 		return err
 	}
