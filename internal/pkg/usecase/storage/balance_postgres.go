@@ -65,17 +65,21 @@ func (b *Balance) Update(ctx context.Context, userID uint64, amount float64) (er
 }
 
 func (b *Balance) Transfer(ctx context.Context, senderID, recipientID uint64, amount float64) error {
-	var operationID uint64
+	var sendOperationID, receiveOperationID uint64
 
 	createdDT := time.Now()
 
-	senderQuery := fmt.Sprintf("update %s set balance = balance - $1 where id = $2;", usersTable)
+	senderQuery := fmt.Sprintf("update %s set balance = balance - $1 where id = $2", usersTable)
 
-	recipientQuery := fmt.Sprintf("update %s set balance = balance + $1 where id = $2;", usersTable)
+	recipientQuery := fmt.Sprintf("update %s set balance = balance + $1 where id = $2", usersTable) //FIXME
 
-	operationQuery := fmt.Sprintf(`insert into %s (operation_type, amount, created_dt) values('tranfer', $1, $2) returning id`, operationsTable)
+	senderOperationQuery := fmt.Sprintf(`insert into %s (operation_type, amount, created_dt) values('send', $1, $2) returning id`, operationsTable)
 
-	usersOperationQuery := fmt.Sprintf("insert into %s (user_id, operation_id) values($1, $2)", usersOperationsTable)
+	recipientOperationQuery := fmt.Sprintf(`insert into %s (operation_type, amount, created_dt) values('receive', $1, $2) returning id`, operationsTable)
+
+	usersOperationQuerySend := fmt.Sprintf("insert into %s (user_id, operation_id) values($1, $2)", usersOperationsTable)
+
+	usersOperationQueryReceive := fmt.Sprintf("insert into %s (user_id, operation_id) values($1, $2)", usersOperationsTable)
 
 	tx, err := b.db.Begin(ctx)
 	if err != nil {
@@ -87,17 +91,27 @@ func (b *Balance) Transfer(ctx context.Context, senderID, recipientID uint64, am
 		return err
 	}
 
-	_, err = tx.Exec(ctx, recipientQuery, amount, recipientID)
+	_, err = tx.Exec(ctx, recipientQuery, amount, recipientID) //FIXME
 	if err != nil {
 		return err
 	}
 
-	row := tx.QueryRow(ctx, operationQuery, amount, createdDT)
-	if err := row.Scan(&operationID); err != nil {
+	senderRow := tx.QueryRow(ctx, senderOperationQuery, math.Abs(amount), createdDT)
+	if err := senderRow.Scan(&sendOperationID); err != nil {
 		return err
 	}
 
-	_, err = tx.Exec(ctx, usersOperationQuery, senderID, operationID)
+	_, err = tx.Exec(ctx, usersOperationQuerySend, senderID, sendOperationID)
+	if err != nil {
+		return err
+	}
+
+	recipientRow := tx.QueryRow(ctx, recipientOperationQuery, math.Abs(amount), createdDT)
+	if err := recipientRow.Scan(&receiveOperationID); err != nil {
+		return err
+	}
+
+	_, err = tx.Exec(ctx, usersOperationQueryReceive, recipientID, receiveOperationID)
 	if err != nil {
 		return err
 	}

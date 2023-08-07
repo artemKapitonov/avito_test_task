@@ -8,8 +8,8 @@ type WrongResponse struct {
 	Error string `json:"error" example:"message"`
 }
 
-func errorResponse(c *gin.Context, code int, msg string) {
-	c.AbortWithStatusJSON(code, WrongResponse{msg})
+func errorResponse(ctx *gin.Context, code int, msg string) {
+	ctx.AbortWithStatusJSON(code, WrongResponse{msg})
 }
 
 type StatusResponse struct {

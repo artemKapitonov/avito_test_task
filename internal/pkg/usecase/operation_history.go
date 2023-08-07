@@ -11,9 +11,9 @@ type HistoryUseCase struct {
 }
 
 type OperationHistory interface {
-	Get(ctx context.Context, userID uint64) ([]entity.Operation, error)
+	Get(ctx context.Context, userID uint64, sort string, isDesc bool) ([]entity.Operation, error)
 }
 
-func (h *HistoryUseCase) Get(ctx context.Context, userID uint64) ([]entity.Operation, error) {
-	return h.OperationHistory.Get(ctx, userID)
+func (h *HistoryUseCase) Get(ctx context.Context, userID uint64, sort string, isDesc bool) ([]entity.Operation, error) {
+	return h.OperationHistory.Get(ctx, userID, sort, isDesc)
 }

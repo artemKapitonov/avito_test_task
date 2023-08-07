@@ -9,13 +9,15 @@ type Controller struct {
 	Account
 	Balance
 	OperationHistory
+	CurrencyConverter
 }
 
-func New(usecase *usecase.UseCase) *Controller {
+func New(uc *usecase.UseCase) *Controller {
 	return &Controller{
-		Account:          usecase.Account,
-		Balance:          usecase.Balance,
-		OperationHistory: usecase.OperationHistory,
+		Account:           uc.Account,
+		Balance:           uc.Balance,
+		OperationHistory:  uc.OperationHistory,
+		CurrencyConverter: uc.CurrencyConverter,
 	}
 }
 

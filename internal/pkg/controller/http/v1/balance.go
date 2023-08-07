@@ -9,12 +9,6 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-const (
-	operationTransfer = "transfer"
-	operationAccrual  = "accrual"
-	operationDebit    = "redeem"
-)
-
 type Balance interface {
 	Update(ctx context.Context, userID uint64, amount float64) error
 	Transfer(ctx context.Context, senderID, recipientID uint64, amount float64) error
@@ -51,7 +45,7 @@ func (c *Controller) transfer(ctx *gin.Context) {
 
 	senderID, err := strconv.ParseUint(param, 10, 64)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, "invalid id param")
+		errorResponse(ctx, http.StatusBadRequest, "invalid sender id param")
 		return
 	}
 
@@ -59,15 +53,30 @@ func (c *Controller) transfer(ctx *gin.Context) {
 
 	recipientID, err := strconv.ParseUint(param, 10, 64)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, "invalid id param")
+		errorResponse(ctx, http.StatusBadRequest, "invalid recirient id param")
 		return
 	}
 
 	query := ctx.Query("amount")
 	amount, err := strconv.ParseFloat(query, 64)
 	if err != nil || amount <= 0 {
-		errorResponse(ctx, http.StatusBadRequest, "invalid id param")
+		errorResponse(ctx, http.StatusBadRequest, "invalid amount param")
 		return
+	}
+
+	fromCurrency, err := selectCurrency(ctx)
+	if err != nil {
+		errorResponse(ctx, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	if fromCurrency == "USD" {
+		toCurrency := "RUB"
+		amount, err = c.CurrencyConverter.Convert(amount, fromCurrency, toCurrency)
+		if err != nil {
+			errorResponse(ctx, http.StatusInternalServerError, "Can't convert currency")
+			return
+		}
 	}
 
 	if err := c.Balance.Transfer(ctx, senderID, recipientID, amount); err != nil {

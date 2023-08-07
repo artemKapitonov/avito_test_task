@@ -1,6 +1,6 @@
 -- +goose Up
 
-CREATE TYPE operation_type AS ENUM ('accrual', 'redeem', 'tranfer');
+CREATE TYPE operation_type AS ENUM ('accrual', 'redeem', 'send', 'receive');
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     balance DECIMAL DEFAULT 0.000 CHECK  (balance >= 0),

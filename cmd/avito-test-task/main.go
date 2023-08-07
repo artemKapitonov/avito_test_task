@@ -12,3 +12,4 @@ func main() {
 		logrus.Fatalf("Can't start application: %s", err.Error())
 	}
 }
+ 

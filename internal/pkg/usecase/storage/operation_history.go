@@ -12,12 +12,26 @@ type OperationHistory struct {
 	db postgresql.Client
 }
 
-func (h *OperationHistory) Get(ctx context.Context, userID uint64) ([]entity.Operation, error) {
+func (h *OperationHistory) Get(ctx context.Context, userID uint64, sort string, isDesc bool) ([]entity.Operation, error) {
 	var operation entity.Operation
 	var operations []entity.Operation
 
-	historyQuery := fmt.Sprintf(`select o.id, o.operation_type, o.amount, o.created_dt from %s o
-	inner join %s uo on o.id = uo.operation_id where uo.user_id = $1;`, operationsTable, usersOperationsTable)
+	var historyQuery string
+
+	if sort == "date" {
+		historyQuery = fmt.Sprintf(`select o.id, o.operation_type, o.amount, o.created_dt from %s o
+	inner join %s uo on o.id = uo.operation_id where uo.user_id = $1 order by o.created_dt desc;`, operationsTable, usersOperationsTable)
+
+	} else {
+		if isDesc {
+			historyQuery = fmt.Sprintf(`select o.id, o.operation_type, o.amount, o.created_dt from %s o
+			inner join %s uo on o.id = uo.operation_id where uo.user_id = $1 order by o.amount desc`, operationsTable, usersOperationsTable)
+
+		} else {
+			historyQuery = fmt.Sprintf(`select o.id, o.operation_type, o.amount, o.created_dt from %s o
+			inner join %s uo on o.id = uo.operation_id where uo.user_id = $1 order by o.amount asc`, operationsTable, usersOperationsTable)
+		}
+	}
 
 	rows, err := h.db.Query(ctx, historyQuery, userID)
 	if err != nil {
@@ -28,12 +42,10 @@ func (h *OperationHistory) Get(ctx context.Context, userID uint64) ([]entity.Ope
 		if err := rows.Scan(&operation.ID, &operation.OperationType, &operation.Amount, &operation.CreatedDT); err != nil {
 			return nil, err
 		}
-		operation.Currency = "₽"
+		operation.Currency = "RUB"
 
 		operations = append(operations, operation)
 	}
 
 	return operations, nil
 }
-
- 
