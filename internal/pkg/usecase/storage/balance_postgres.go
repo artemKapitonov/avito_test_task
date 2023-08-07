@@ -71,7 +71,7 @@ func (b *Balance) Transfer(ctx context.Context, senderID, recipientID uint64, am
 
 	senderQuery := fmt.Sprintf("update %s set balance = balance - $1 where id = $2", usersTable)
 
-	recipientQuery := fmt.Sprintf("update %s set balance = balance + $1 where id = $2", usersTable) //FIXME
+	recipientQuery := fmt.Sprintf("update %s set balance = balance + $1 where id = $2", usersTable)
 
 	senderOperationQuery := fmt.Sprintf(`insert into %s (operation_type, amount, created_dt) values('send', $1, $2) returning id`, operationsTable)
 
@@ -91,7 +91,7 @@ func (b *Balance) Transfer(ctx context.Context, senderID, recipientID uint64, am
 		return err
 	}
 
-	_, err = tx.Exec(ctx, recipientQuery, amount, recipientID) //FIXME
+	_, err = tx.Exec(ctx, recipientQuery, amount, recipientID)
 	if err != nil {
 		return err
 	}
