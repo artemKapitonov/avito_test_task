@@ -2,7 +2,7 @@ port: "8080"
 
 db:
     username: "kapitonov"
-    host: "localhost"
-    port: "0.0.0.0:5432"
+    host: "db"
+    port: "5432"
     dbname: "postgres"
     sslmode: "disable"

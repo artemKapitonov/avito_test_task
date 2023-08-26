@@ -1,0 +1,22 @@
+version: '3.5'
+
+services:
+  app:
+    build: ./
+    command: ./avito-test-task
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    environment:
+      - DATABASE_PASSWORD=root
+      - API_LAYER_TOKEN=${API_LAYER_TOKEN}
+  db:
+    image: postgres:latest
+    restart: always
+    container_name: avito_test_task_db
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: kapitonov
+    ports:
+      - "5432:5432"

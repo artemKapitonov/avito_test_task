@@ -1,14 +1,12 @@
 package migrate
 
 import (
-	"context"
-
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose"
 )
 
-func Create(dbPool *pgxpool.Pool, ctx context.Context) error {
+func Create(dbPool *pgxpool.Pool) error {
 
 	db := stdlib.OpenDB(*dbPool.Config().ConnConfig)
 

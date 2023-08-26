@@ -31,14 +31,14 @@ func New() *App {
 
 	gin.SetMode(gin.TestMode)
 
-	logrus.SetFormatter(&logrus.TextFormatter{})
+	logrus.SetFormatter(&logrus.JSONFormatter{})
 
 	if err := config.Init(); err != nil {
-		logrus.Fatalf("Can't init configs: %s", err.Error())
+		logrus.Fatalf("Can't init configs Error: %s", err.Error())
 	}
 
 	if err := godotenv.Load(".env"); err != nil {
-		logrus.Fatalf("Сan't load env: %s", err.Error())
+		logrus.Fatalf("Сan't load env Error: %s", err.Error())
 	}
 
 	app := &App{}
@@ -58,11 +58,11 @@ func New() *App {
 		SSLMode:  viper.GetString("db.sslmode"),
 	})
 	if err != nil {
-		logrus.Fatalf("Can't connect to database: %s", err.Error())
+		logrus.Fatalf("Can't connect to database Error: %s", err.Error())
 	}
 
-	if err := migrate.Create(db, ctx); err != nil {
-		logrus.Fatalf("Can't create migrations: %s", err.Error())
+	if err := migrate.Create(db); err != nil {
+		logrus.Fatalf("Can't create migrations Error: %s", err.Error())
 	}
 
 	app.CurrencyConverter = convert.New(token)

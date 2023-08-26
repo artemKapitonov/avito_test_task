@@ -35,6 +35,6 @@ func New(handler http.Handler, port string) *Server {
 }
 
 func (s *Server) Start() error {
-	logrus.Printf("Server start on Addr:  %s", s.server.Addr)
+	logrus.Printf("Server started at:  %s", s.server.Addr)
 	return s.server.ListenAndServe()
 }
