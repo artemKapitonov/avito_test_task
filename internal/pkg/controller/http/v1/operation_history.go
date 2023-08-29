@@ -10,6 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//go:generate mockgen -source=operation_history.go -destination=mock/operation_hisory_mock.go
+
 type OperationHistory interface {
 	Get(ctx context.Context, userID uint64, sort string, isDesc bool) ([]entity.Operation, error)
 }

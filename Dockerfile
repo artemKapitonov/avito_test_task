@@ -1,16 +1,23 @@
-FROM golang:latest
+FROM golang:alpine AS builder
 
-LABEL version='1.0'
+WORKDIR /usr/local/src
 
-COPY ./ ./
+COPY ["go.mod", "go.sum", "./"]
 
-RUN go version
-
-ENV GOPATH=/
-
-# build go app
 RUN go mod download
 
-RUN go build -o avito-test-task ./cmd/avito-test-task
+COPY  ./ ./
+
+RUN go build -o ./bin/avito-test-task ./cmd/avito-test-task
+
+FROM alpine AS runner
+
+COPY --from=builder /usr/local/src/bin/avito-test-task /
+
+COPY configs/config.yml configs/config.yml
+
+COPY migrations/schema migrations/schema
+
+COPY .env .env
 
 CMD [ "./avito-test-task" ]

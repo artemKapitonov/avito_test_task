@@ -10,6 +10,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//go:generate mockgen -source=account.go -destination=mock/account_mock.go
+
 type Account interface {
 	Create(ctx context.Context) (entity.User, error)
 	GetByID(ctx context.Context, id uint64) (entity.User, error)

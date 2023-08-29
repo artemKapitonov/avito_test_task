@@ -15,6 +15,8 @@ var (
 	rubToUsdRate float64
 )
 
+//go:generate mockgen -source=balance.go -destination=mock/currency_mock.go
+
 type CurrencyConvert struct{}
 
 func New(token string) *CurrencyConvert {

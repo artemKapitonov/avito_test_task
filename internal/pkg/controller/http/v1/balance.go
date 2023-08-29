@@ -8,6 +8,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+//go:generate mockgen -source=balance.go -destination=mock/balance_mock.go
 
 type Balance interface {
 	Update(ctx context.Context, userID uint64, amount float64) error

@@ -7,6 +7,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+//go:generate mockgen -source=currency.go -destination=mock/currency_mock.go
+
 type CurrencyConverter interface {
 	Convert(amount float64, fromCurrency, toCurrency string) (float64, error)
 }
