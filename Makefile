@@ -1,7 +1,7 @@
 .SILENT:
 
-build:
-	docker compose up --build app
+go-run:
+	go run cmd/avito-test-task/main.go
 
 run:
-	docker compose up app
+	docker compose up --build app

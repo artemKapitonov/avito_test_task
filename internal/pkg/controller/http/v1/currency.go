@@ -7,16 +7,18 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//go:generate mockgen -source=currency.go -destination=mock/currency_mock.go
+//go:generate mockgen -source=currency.go -destination=mocks/currency_mock.go
 
+// CurrencyConverter is an interface for converting currencies
 type CurrencyConverter interface {
 	Convert(amount float64, fromCurrency, toCurrency string) (float64, error)
 }
 
+// selectCurrency selects the currency based on the query parameter in the context
 func selectCurrency(ctx *gin.Context) (string, error) {
 	currencyParam := ctx.Query("currency")
 
-	switch strings.ToTitle(currencyParam) {
+	switch strings.ToUpper(currencyParam) {
 	case "":
 		return "RUB", nil
 
@@ -27,6 +29,6 @@ func selectCurrency(ctx *gin.Context) (string, error) {
 		return "USD", nil
 
 	default:
-		return "", errors.New("invalid currency param")
+		return "", errors.New("invalid currency parameter")
 	}
 }

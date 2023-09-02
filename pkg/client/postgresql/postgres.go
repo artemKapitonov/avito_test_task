@@ -12,6 +12,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+// Client is an interface for PostgreSQL client operations
 type Client interface {
 	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
@@ -20,6 +21,7 @@ type Client interface {
 	Ping(ctx context.Context) error
 }
 
+// Config represents the configuration for connecting to PostgreSQL
 type Config struct {
 	Host     string
 	Port     string
@@ -29,6 +31,7 @@ type Config struct {
 	SSLMode  string
 }
 
+// ConnectionConfig creates a connection configuration for PostgreSQL
 func ConnectionConfig(cfg Config) (*pgxpool.Config, error) {
 	config, err := pgxpool.ParseConfig(fmt.Sprintf(
 		"user=%s password=%s host=%s port=%s dbname=%s sslmode=%s",
@@ -40,8 +43,9 @@ func ConnectionConfig(cfg Config) (*pgxpool.Config, error) {
 	return config, nil
 }
 
+// ConnectToDB connects to the PostgreSQL database
 func ConnectToDB(ctx context.Context, cfg Config) (db *pgxpool.Pool, err error) {
-	var maxAttemps = 5
+	var maxAttempts = 5
 	connCfg, err := ConnectionConfig(cfg)
 	if err != nil {
 		return nil, err
@@ -62,8 +66,8 @@ func ConnectToDB(ctx context.Context, cfg Config) (db *pgxpool.Pool, err error) 
 			}
 
 			return nil
+		}, maxAttempts, 5*time.Second)
 
-		}, maxAttemps, 5*time.Second)
 	if err != nil {
 		logrus.Fatalf("Do with tries Error: %s", err.Error())
 	}

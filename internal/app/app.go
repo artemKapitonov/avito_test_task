@@ -28,27 +28,34 @@ type App struct {
 }
 
 func New() *App {
-
+	// Set Gin mode to TestMode
 	gin.SetMode(gin.TestMode)
 
+	// Set logrus formatter to JSONFormatter
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 
+	// Initialize configurations
 	if err := config.Init(); err != nil {
 		logrus.Fatalf("Can't init configs Error: %s", err.Error())
 	}
 
+	// Load environment variables from .env file
 	if err := godotenv.Load(".env"); err != nil {
-		logrus.Fatalf("Сan't load env Error: %s", err.Error())
+		logrus.Fatalf("Can't load env Error: %s", err.Error())
 	}
 
 	app := &App{}
 
+	// Get API Layer token from environment variable
 	token := os.Getenv("API_LAYER_TOKEN")
 
+	// Get port from configuration
 	port := viper.GetString("port")
 
+	// Create a new context
 	ctx := context.TODO()
 
+	// Connect to the database
 	db, err := postgresql.ConnectToDB(ctx, postgresql.Config{
 		Host:     viper.GetString("db.host"),
 		Port:     viper.GetString("db.port"),
@@ -61,18 +68,24 @@ func New() *App {
 		logrus.Fatalf("Can't connect to database Error: %s", err.Error())
 	}
 
+	// Create migrations
 	if err := migrate.Create(db); err != nil {
 		logrus.Fatalf("Can't create migrations Error: %s", err.Error())
 	}
 
+	// Initialize currency converter
 	app.CurrencyConverter = convert.New(token)
 
+	// Initialize storage
 	app.Storage = storage.New(db)
 
+	// Initialize use case
 	app.UseCase = usecase.New(app.Storage, app.CurrencyConverter)
 
+	// Initialize controller
 	app.Controller = v1.New(app.UseCase)
 
+	// Initialize server
 	app.Server = httpserver.New(app.Controller.InitRoutes(), port)
 
 	return app

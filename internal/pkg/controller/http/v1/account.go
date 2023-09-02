@@ -10,13 +10,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//go:generate mockgen -source=account.go -destination=mock/account_mock.go
+//go:generate mockgen -source=account.go -destination=mocks/account_mock.go
 
+// Account is an interface for user accounts
 type Account interface {
 	Create(ctx context.Context) (entity.User, error)
 	GetByID(ctx context.Context, id uint64) (entity.User, error)
 }
 
+// createUser creates a new user
 func (c *Controller) createUser(ctx *gin.Context) {
 	user, err := c.Account.Create(ctx)
 	if err != nil {
@@ -29,6 +31,7 @@ func (c *Controller) createUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, user)
 }
 
+// userByID retrieves a user by ID
 func (c *Controller) userByID(ctx *gin.Context) {
 	param := ctx.Param("id")
 

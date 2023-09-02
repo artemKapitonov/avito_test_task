@@ -5,6 +5,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Controller represents the controller for handling HTTP requests
 type Controller struct {
 	Account
 	Balance
@@ -12,6 +13,7 @@ type Controller struct {
 	CurrencyConverter
 }
 
+// New creates a new instance of the Controller
 func New(uc *usecase.UseCase) *Controller {
 	return &Controller{
 		Account:           uc.Account,
@@ -21,9 +23,11 @@ func New(uc *usecase.UseCase) *Controller {
 	}
 }
 
+// InitRoutes initializes the routes for the controller
 func (c *Controller) InitRoutes() *gin.Engine {
 	router := gin.Default()
 
+	// Account routes
 	account := router.Group("/account")
 	{
 		account.POST("/", c.createUser)
@@ -31,11 +35,12 @@ func (c *Controller) InitRoutes() *gin.Engine {
 		account.PUT("/:id", c.updateBalance)
 		account.PUT("/transfer/:sender_id/:recipient_id", c.transfer)
 
+		// History routes
 		history := account.Group("/history")
 		{
 			history.GET("/:id", c.getHistory)
 		}
 	}
-	return router
 
+	return router
 }

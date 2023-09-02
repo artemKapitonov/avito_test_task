@@ -2,11 +2,13 @@ package storage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"time"
 
 	"github.com/artemKapitonov/avito_test_task/internal/pkg/entity"
 	"github.com/artemKapitonov/avito_test_task/pkg/client/postgresql"
+	"github.com/jackc/pgx/v5"
 )
 
 type Account struct {
@@ -20,7 +22,8 @@ func (a *Account) Create(ctx context.Context) (entity.User, error) {
 
 	createdDT := time.Now()
 
-	query := fmt.Sprintf("insert  into %s (created_dt) values ($1) returning id, created_dt;", usersTable)
+	// Construct the query
+	query := fmt.Sprintf("INSERT INTO %s (created_dt) VALUES ($1) RETURNING id, created_dt;", usersTable)
 
 	row := a.db.QueryRow(ctx, query, createdDT)
 
@@ -28,6 +31,7 @@ func (a *Account) Create(ctx context.Context) (entity.User, error) {
 		return user, err
 	}
 
+	// Create the user object
 	user = entity.User{
 		ID:        id,
 		CreatedDT: createdDT,
@@ -42,14 +46,21 @@ func (a *Account) GetByID(ctx context.Context, id uint64) (entity.User, error) {
 
 	var createdDT time.Time
 
-	query := fmt.Sprintf("select * from %s where id = $1;", usersTable)
+	// Construct the query
+	query := fmt.Sprintf("SELECT * FROM %s WHERE id = $1;", usersTable)
 
+	// Execute the query and retrieve the result
 	row := a.db.QueryRow(ctx, query, id)
 
 	if err := row.Scan(&id, &balance, &createdDT); err != nil {
+		if err == pgx.ErrNoRows {
+			return user, errors.New("user with this ID not found")
+		}
+
 		return user, err
 	}
 
+	// Create the user object
 	user = entity.User{
 		ID:        id,
 		Balance:   balance,

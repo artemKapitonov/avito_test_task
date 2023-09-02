@@ -10,15 +10,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-//go:generate mockgen -source=operation_history.go -destination=mock/operation_hisory_mock.go
+//go:generate mockgen -source=operation_history.go -destination=mocks/operation_hisory_mock.go
 
+// OperationHistory defines the interface for getting operation history.
 type OperationHistory interface {
 	Get(ctx context.Context, userID uint64, sort string, isDesc bool) ([]entity.Operation, error)
 }
 
+// getHistory handles the GET request for retrieving operation history.
 func (c *Controller) getHistory(ctx *gin.Context) {
 	paramID := ctx.Param("id")
-
 	userID, err := strconv.ParseUint(paramID, 10, 64)
 	if err != nil {
 		errorResponse(ctx, http.StatusBadRequest, "invalid id param")
@@ -26,7 +27,6 @@ func (c *Controller) getHistory(ctx *gin.Context) {
 	}
 
 	sort := ctx.Query("sort")
-
 	if sort == "" {
 		sort = "date"
 	}
