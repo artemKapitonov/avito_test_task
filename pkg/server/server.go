@@ -1,6 +1,7 @@
 package httpserver
 
 import (
+	"context"
 	"net/http"
 	"time"
 
@@ -13,12 +14,12 @@ const (
 	_defaultShutdownTimeout = 3 * time.Second
 )
 
-// Server -.
+// Server with HTTP protocol
 type Server struct {
 	server *http.Server
 }
 
-// New -.
+// New http server
 func New(handler http.Handler, port string) *Server {
 	httpServer := &http.Server{
 		Handler:      handler,
@@ -34,7 +35,17 @@ func New(handler http.Handler, port string) *Server {
 	return s
 }
 
-func (s *Server) Start() error {
+// Start http server
+func (s *Server) Start() (err error) {
 	logrus.Printf("Server started at:  %s", s.server.Addr)
-	return s.server.ListenAndServe()
+	go func() {
+		err = s.server.ListenAndServe()
+	}()
+
+	return
+}
+
+// Shutdown stoped http server
+func (s *Server) Shutdown(ctx context.Context) error {
+	return s.server.Shutdown(ctx)
 }

@@ -2,6 +2,8 @@ package app
 
 import (
 	"os"
+	"os/signal"
+	"syscall"
 
 	"context"
 
@@ -19,6 +21,7 @@ import (
 	"github.com/spf13/viper"
 )
 
+// App structure of application
 type App struct {
 	Controller        *v1.Controller
 	UseCase           *usecase.UseCase
@@ -27,6 +30,7 @@ type App struct {
 	Server            *httpserver.Server
 }
 
+// New application
 func New() *App {
 	// Set Gin mode to TestMode
 	gin.SetMode(gin.TestMode)
@@ -64,33 +68,54 @@ func New() *App {
 		DBName:   viper.GetString("db.dbname"),
 		SSLMode:  viper.GetString("db.sslmode"),
 	})
+
 	if err != nil {
 		logrus.Fatalf("Can't connect to database Error: %s", err.Error())
 	}
 
-	// Create migrations
 	if err := migrate.Create(db); err != nil {
 		logrus.Fatalf("Can't create migrations Error: %s", err.Error())
 	}
 
-	// Initialize currency converter
 	app.CurrencyConverter = convert.New(token)
 
-	// Initialize storage
 	app.Storage = storage.New(db)
 
-	// Initialize use case
 	app.UseCase = usecase.New(app.Storage, app.CurrencyConverter)
 
-	// Initialize controller
 	app.Controller = v1.New(app.UseCase)
 
-	// Initialize server
 	app.Server = httpserver.New(app.Controller.InitRoutes(), port)
 
 	return app
 }
 
+// Run application
 func (a *App) Run() error {
-	return a.Server.Start()
+	if err := a.Server.Start(); err != nil {
+		return err
+	}
+
+	if err := ShutdownApp(a); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// ShutdownApp shutting down application
+func ShutdownApp(a *App) error {
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
+	<-quit
+
+	if err := a.Server.Shutdown(context.Background()); err != nil {
+		return err
+	}
+
+	defer a.Storage.Close()
+
+	logrus.Println("App Shuting down")
+	return nil
 }

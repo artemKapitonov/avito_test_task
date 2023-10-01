@@ -59,13 +59,11 @@ func updateRubToUSDRate(token string) {
 		req.Header.Set("apikey", token)
 
 		res, err := client.Do(req)
-
 		if res.Body == nil || err != nil {
 			logrus.Fatal("Can't do request for currency converting")
 		}
 
 		body, err := io.ReadAll(res.Body)
-
 		if err != nil {
 			logrus.Fatal("Can't read response for conversion")
 		}
@@ -74,7 +72,6 @@ func updateRubToUSDRate(token string) {
 		if err := json.Unmarshal(body, &response); err != nil {
 			logrus.Fatalf("Can't unmarshal response body Error: %s", err.Error())
 		}
-
 		rubToUsdRate = response.Result
 
 		// Print the updated rate

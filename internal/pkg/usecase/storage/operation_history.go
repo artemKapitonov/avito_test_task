@@ -8,10 +8,19 @@ import (
 	"github.com/artemKapitonov/avito_test_task/pkg/client/postgresql"
 )
 
+// OperationHistory of user
 type OperationHistory struct {
 	db postgresql.Client
 }
 
+// NewOperationHistory initialize new OperationHestory struct
+func NewOperationHistory(db postgresql.Client) *OperationHistory {
+	return &OperationHistory{
+		db: db,
+	}
+}
+
+// Get a history of operation by userID with sort and desc params
 func (h *OperationHistory) Get(ctx context.Context, userID uint64, sort string, isDesc bool) ([]entity.Operation, error) {
 	var operation entity.Operation
 	var operations []entity.Operation

@@ -10,8 +10,6 @@ import (
 func Create(dbPool *pgxpool.Pool) error {
 	db := stdlib.OpenDB(*dbPool.Config().ConnConfig)
 
-	defer db.Close()
-
 	if err := db.Ping(); err != nil {
 		return err
 	}
@@ -22,6 +20,10 @@ func Create(dbPool *pgxpool.Pool) error {
 
 	// выполнение миграций
 	if err := goose.Up(db, "migrations/schema"); err != nil {
+		return err
+	}
+
+	if err := db.Close(); err != nil {
 		return err
 	}
 

@@ -10,10 +10,19 @@ import (
 	"github.com/artemKapitonov/avito_test_task/pkg/client/postgresql"
 )
 
+// Balance of user
 type Balance struct {
 	db postgresql.Client
 }
 
+// NewBalance initialize new Balance struct
+func NewBalance(db postgresql.Client) *Balance {
+	return &Balance{
+		db: db,
+	}
+}
+
+// Select type of operation by amount
 func selectOpertionType(amount float64) (string, error) {
 	if amount > 0 {
 		return "accrual", nil
@@ -23,6 +32,7 @@ func selectOpertionType(amount float64) (string, error) {
 	return "", errors.New("amount in transaction is zero")
 }
 
+// Update accrual or redeem operation with user's balance
 func (b *Balance) Update(ctx context.Context, userID uint64, amount float64) (err error) {
 	createdDT := time.Now()
 
@@ -64,6 +74,7 @@ func (b *Balance) Update(ctx context.Context, userID uint64, amount float64) (er
 	return nil
 }
 
+// Transfer amount from users
 func (b *Balance) Transfer(ctx context.Context, senderID, recipientID uint64, amount float64) error {
 	var sendOperationID, receiveOperationID uint64
 

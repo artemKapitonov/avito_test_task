@@ -1,8 +1,8 @@
 port: "8080"
 
 db:
-    username: "kapitonov"
-    host: "db"
-    port: "5432"
-    dbname: "postgres"
-    sslmode: "disable"
+  username: "kapitonov"
+  host: "db"
+  port: "5432"
+  dbname: "postgres"
+  sslmode: "disable"

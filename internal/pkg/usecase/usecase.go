@@ -16,9 +16,9 @@ type UseCase struct {
 // New creates a new instance of UseCase
 func New(storage *storage.Storage, converter *converter.CurrencyConvert) *UseCase {
 	return &UseCase{
-		Account:           &storage.Account,
-		Balance:           &storage.Balance,
-		OperationHistory:  &storage.OperationHistory,
+		Account:           storage.Account,
+		Balance:           storage.Balance,
+		OperationHistory:  storage.OperationHistory,
 		CurrencyConverter: converter,
 	}
 }

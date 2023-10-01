@@ -19,6 +19,7 @@ type Client interface {
 	Begin(ctx context.Context) (pgx.Tx, error)
 	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
 	Ping(ctx context.Context) error
+	Close()
 }
 
 // Config represents the configuration for connecting to PostgreSQL

@@ -11,10 +11,19 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
+// Account of user
 type Account struct {
 	db postgresql.Client
 }
 
+// NewAccount initialize new account struct
+func NewAccount(db postgresql.Client) *Account {
+	return &Account{
+		db: db,
+	}
+}
+
+// Create new user in database
 func (a *Account) Create(ctx context.Context) (entity.User, error) {
 	var user entity.User
 
@@ -39,11 +48,10 @@ func (a *Account) Create(ctx context.Context) (entity.User, error) {
 	return user, nil
 }
 
+// GetByID select user from database by userID
 func (a *Account) GetByID(ctx context.Context, id uint64) (entity.User, error) {
 	var user entity.User
-
 	var balance float64
-
 	var createdDT time.Time
 
 	// Construct the query
