@@ -10,30 +10,31 @@ import (
 	"github.com/artemKapitonov/avito_test_task/pkg/client/postgresql"
 )
 
-// Balance of user
+// Balance of user.
 type Balance struct {
 	db postgresql.Client
 }
 
-// NewBalance initialize new Balance struct
+// NewBalance initialize new Balance struct.
 func NewBalance(db postgresql.Client) *Balance {
 	return &Balance{
 		db: db,
 	}
 }
 
-// Select type of operation by amount
+// Select type of operation by amount.
 func selectOpertionType(amount float64) (string, error) {
 	if amount > 0 {
 		return "accrual", nil
 	} else if amount < 0 {
 		return "redeem", nil
 	}
+
 	return "", errors.New("amount in transaction is zero")
 }
 
-// Update accrual or redeem operation with user's balance
-func (b *Balance) Update(ctx context.Context, userID uint64, amount float64) (err error) {
+// Update accrual or redeem operation with user's balance.
+func (b *Balance) Update(ctx context.Context, userID uint64, amount float64) error {
 	createdDT := time.Now()
 
 	var operationID uint64
@@ -44,7 +45,12 @@ func (b *Balance) Update(ctx context.Context, userID uint64, amount float64) (er
 	}
 
 	balanceQuery := fmt.Sprintf("update %s set balance = balance + $1 where id = $2;", usersTable)
-	operationQuery := fmt.Sprintf("insert into %s (operation_type, amount, created_dt) values($1, $2, $3) returning id", operationsTable)
+
+	operationQuery := fmt.Sprintf(
+		"insert into %s (operation_type, amount, created_dt) values($1, $2, $3) returning id",
+		operationsTable,
+	)
+
 	usersOperationQuery := fmt.Sprintf("insert into %s (user_id, operation_id) values($1, $2)", usersOperationsTable)
 
 	tx, err := b.db.Begin(ctx)
@@ -67,15 +73,16 @@ func (b *Balance) Update(ctx context.Context, userID uint64, amount float64) (er
 		return err
 	}
 
-	if err := tx.Commit(ctx); err != nil {
+	err = tx.Commit(ctx)
+	if err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// Transfer amount from users
-func (b *Balance) Transfer(ctx context.Context, senderID, recipientID uint64, amount float64) error {
+// Transfer amount from users.
+func (b *Balance) Transfer(ctx context.Context, senderID, recipientID uint64, amount float64) (err error) { //TODO.
 	var sendOperationID, receiveOperationID uint64
 
 	createdDT := time.Now()
@@ -84,13 +91,19 @@ func (b *Balance) Transfer(ctx context.Context, senderID, recipientID uint64, am
 
 	recipientQuery := fmt.Sprintf("update %s set balance = balance + $1 where id = $2", usersTable)
 
-	senderOperationQuery := fmt.Sprintf(`insert into %s (operation_type, amount, created_dt) values('send', $1, $2) returning id`, operationsTable)
+	senderOperationQuery := fmt.Sprintf(`insert into %s (operation_type, amount, created_dt)
+	values('send', $1, $2) returning id`,
+		operationsTable)
 
-	recipientOperationQuery := fmt.Sprintf(`insert into %s (operation_type, amount, created_dt) values('receive', $1, $2) returning id`, operationsTable)
+	recipientOperationQuery := fmt.Sprintf(`insert into %s (operation_type, amount, created_dt)
+	values('receive', $1, $2) returning id`,
+		operationsTable)
 
-	usersOperationQuerySend := fmt.Sprintf("insert into %s (user_id, operation_id) values($1, $2)", usersOperationsTable)
+	usersOperationQuerySend := fmt.Sprintf("insert into %s (user_id, operation_id) values($1, $2)",
+		usersOperationsTable)
 
-	usersOperationQueryReceive := fmt.Sprintf("insert into %s (user_id, operation_id) values($1, $2)", usersOperationsTable)
+	usersOperationQueryReceive := fmt.Sprintf("insert into %s (user_id, operation_id) values($1, $2)",
+		usersOperationsTable)
 
 	tx, err := b.db.Begin(ctx)
 	if err != nil {
@@ -127,7 +140,8 @@ func (b *Balance) Transfer(ctx context.Context, senderID, recipientID uint64, am
 		return err
 	}
 
-	if err := tx.Commit(ctx); err != nil {
+	err = tx.Commit(ctx)
+	if err != nil {
 		return err
 	}
 

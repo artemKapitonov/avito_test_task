@@ -1,21 +1,64 @@
-# Refer to golangci-lint's example config file for more options and information:
-# https://github.com/golangci/golangci-lint/blob/master/.golangci.reference.yml
+linters-settings:
+  varnamelen:
+    min-name-length: 2
+    max-distance: 20
+  nlreturn:
+    # Size of the block (including return statement that is still "OK")
+    # so no return split required.
+    # Default: 1
+    block-size: 2
+  # errcheck:
+  #   check-type-assertions: true
+  # goconst:
+  #   min-len: 2
+  #   min-occurrences: 3
+  # gocritic:
+  #   enabled-tags:
+  #     - diagnostic
+  #     - experimental
+  #     - opinionated
+  #     - performance
+  #     - style
+  # govet:
+  #   check-shadowing: true
+  #   enable:
+  #     - fieldalignment
 
-run:
-  timeout: 5m
-  modules-download-mode: mod
+  wsl:
+    force-err-cuddling: true
+  nolintlint:
+    require-explanation: true
+    require-specific: true
 
 linters:
-  enable:
-    - errcheck
-    - goimports
+  enable-all: true
+  disable:
+    - goimports #2
+    - gofmt #1
+    - ireturn
+    - musttag
+    - exhaustruct
+    - gomnd
+    - varnamelen #Длина имён переменных
+    - gochecknoglobals
+    - paralleltest #todo пока только мешает, разобраться.
+    - godox
+    - gci
+    - wrapcheck #todo включить отдельно!
+    - gofumpt
+    - exhaustivestruct
+    - varcheck
     - golint
-    - govet
-    - staticcheck
+    - ifshort
+    - interfacer
+    - nosnakecase
+    - scopelint
+    - structcheck
+    - maligned
+    - deadcode
+    - structcheck
+    - depguard
+    - goerr113
 
-
-
-issues:
-  exclude-use-default: false
-  max-issues-per-linter: 0
-  max-same-issues: 0
+run:
+  issues-exit-code: 1

@@ -2,7 +2,7 @@ package storage
 
 import "github.com/jackc/pgx/v5/pgxpool"
 
-// Storage is postgres database
+// Storage is postgres database.
 type Storage struct {
 	*Account
 	*Balance
@@ -15,7 +15,7 @@ const (
 	usersOperationsTable = "user_operations"
 )
 
-// New storage
+// New storage.
 func New(db *pgxpool.Pool) *Storage {
 	return &Storage{
 		Account:          NewAccount(db),
@@ -24,7 +24,7 @@ func New(db *pgxpool.Pool) *Storage {
 	}
 }
 
-// Close is close all db connections
+// Close is close all db connections.
 func (s *Storage) Close() {
 	s.Account.db.Close()
 	s.Balance.db.Close()

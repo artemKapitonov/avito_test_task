@@ -21,7 +21,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-// App structure of application
+// App structure of application.
 type App struct {
 	Controller        *v1.Controller
 	UseCase           *usecase.UseCase
@@ -30,12 +30,12 @@ type App struct {
 	Server            *httpserver.Server
 }
 
-// New application
+// New application.
 func New() *App {
-	// Set Gin mode to TestMode
+	// Set Gin mode to TestMode.
 	gin.SetMode(gin.TestMode)
 
-	// Set logrus formatter to JSONFormatter
+	// Set logrus formatter to JSONFormatter.
 	logrus.SetFormatter(&logrus.JSONFormatter{})
 
 	// Initialize configurations
@@ -43,23 +43,23 @@ func New() *App {
 		logrus.Fatalf("Can't init configs Error: %s", err.Error())
 	}
 
-	// Load environment variables from .env file
+	// Load environment variables from .env file.
 	if err := godotenv.Load(".env"); err != nil {
 		logrus.Fatalf("Can't load env Error: %s", err.Error())
 	}
 
 	app := &App{}
 
-	// Get API Layer token from environment variable
+	// Get API Layer token from environment variable.
 	token := os.Getenv("API_LAYER_TOKEN")
 
 	// Get port from configuration
 	port := viper.GetString("port")
 
-	// Create a new context
+	// Create a new context.
 	ctx := context.TODO()
 
-	// Connect to the database
+	// Connect to the database.
 	db, err := postgresql.ConnectToDB(ctx, postgresql.Config{
 		Host:     viper.GetString("db.host"),
 		Port:     viper.GetString("db.port"),
@@ -90,22 +90,22 @@ func New() *App {
 	return app
 }
 
-// Run application
+// Run application.
 func (a *App) Run() error {
 	if err := a.Server.Start(); err != nil {
 		return err
 	}
 
-	if err := ShutdownApp(a); err != nil {
+	err := ShutdownApp(a)
+	if err != nil {
 		return err
 	}
 
 	return nil
 }
 
-// ShutdownApp shutting down application
+// ShutdownApp shutting down application.
 func ShutdownApp(a *App) error {
-
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)
 	<-quit
@@ -117,5 +117,6 @@ func ShutdownApp(a *App) error {
 	defer a.Storage.Close()
 
 	logrus.Println("App Shuting down")
+
 	return nil
 }

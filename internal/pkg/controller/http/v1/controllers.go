@@ -2,10 +2,11 @@ package v1
 
 import (
 	"github.com/artemKapitonov/avito_test_task/internal/pkg/usecase"
+
 	"github.com/gin-gonic/gin"
 )
 
-// Controller represents the controller for handling HTTP requests
+// Controller represents the controller for handling HTTP requests.
 type Controller struct {
 	Account
 	Balance
@@ -13,7 +14,7 @@ type Controller struct {
 	CurrencyConverter
 }
 
-// New creates a new instance of the Controller
+// New creates a new instance of the Controller.
 func New(uc *usecase.UseCase) *Controller {
 	return &Controller{
 		Account:           uc.Account,
@@ -23,7 +24,7 @@ func New(uc *usecase.UseCase) *Controller {
 	}
 }
 
-// InitRoutes initializes the routes for the controller
+// InitRoutes initializes the routes for the controller.
 func (c *Controller) InitRoutes() *gin.Engine {
 	router := gin.Default()
 
@@ -35,7 +36,7 @@ func (c *Controller) InitRoutes() *gin.Engine {
 		account.PUT("/:id", c.updateBalance)
 		account.PUT("/transfer/:sender_id/:recipient_id", c.transfer)
 
-		// History routes
+		// History routes.
 		history := account.Group("/history")
 		{
 			history.GET("/:id", c.getHistory)
