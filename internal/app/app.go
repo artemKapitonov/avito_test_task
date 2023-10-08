@@ -90,7 +90,7 @@ func New() *App {
 	return app
 }
 
-// Run application.
+// Run is starting application.
 func (a *App) Run() error {
 	if err := a.Server.Start(); err != nil {
 		return err
@@ -104,7 +104,7 @@ func (a *App) Run() error {
 	return nil
 }
 
-// ShutdownApp shutting down application.
+// ShutdownApp is shutting down application.
 func ShutdownApp(a *App) error {
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGTERM, syscall.SIGINT)

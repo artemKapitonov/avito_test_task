@@ -14,7 +14,7 @@ type OperationHistory struct {
 	db postgresql.Client
 }
 
-// NewOperationHistory initialize new OperationHestory struct.
+// NewOperationHistory initialize new OperationHistory struct.
 func NewOperationHistory(db postgresql.Client) *OperationHistory {
 	return &OperationHistory{
 		db: db,
@@ -31,11 +31,8 @@ func (h *OperationHistory) Get(ctx context.Context, userID uint64, sort string, 
 	var historyQuery string
 
 	if sort == "date" {
-		historyQuery = fmt.Sprintf(
-			`select o.id, o.operation_type, o.amount, o.created_dt from %s o inner join %s uo on o.id = uo.operation_id
-			where uo.user_id = $1 order by o.created_dt desc;`,
-			operationsTable, usersOperationsTable,
-		)
+		historyQuery = fmt.Sprintf(`select o.id, o.operation_type, o.amount, o.created_dt from %s o inner join %s uo on o.id = uo.operation_id
+			where uo.user_id = $1 order by o.created_dt desc;`, operationsTable, usersOperationsTable)
 	} else {
 		if isDesc {
 			historyQuery = fmt.Sprintf(

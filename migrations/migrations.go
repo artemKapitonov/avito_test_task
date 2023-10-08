@@ -6,7 +6,7 @@ import (
 	"github.com/pressly/goose"
 )
 
-// Create runs database migrations
+// Create runs database migrations.
 func Create(dbPool *pgxpool.Pool) error {
 	db := stdlib.OpenDB(*dbPool.Config().ConnConfig)
 

@@ -9,17 +9,16 @@ import (
 )
 
 const (
-	_defaultReadTimeout     = 5 * time.Second
-	_defaultWriteTimeout    = 5 * time.Second
-	_defaultShutdownTimeout = 3 * time.Second
+	_defaultReadTimeout  = 5 * time.Second
+	_defaultWriteTimeout = 5 * time.Second
 )
 
-// Server with HTTP protocol
+// Server with HTTP protocol.
 type Server struct {
 	server *http.Server
 }
 
-// New http server
+// New is creating new http server.
 func New(handler http.Handler, port string) *Server {
 	httpServer := &http.Server{
 		Handler:      handler,
@@ -35,7 +34,7 @@ func New(handler http.Handler, port string) *Server {
 	return s
 }
 
-// Start http server
+// Start is starting http server.
 func (s *Server) Start() (err error) {
 	logrus.Printf("Server started at:  %s", s.server.Addr)
 	go func() {
@@ -45,7 +44,7 @@ func (s *Server) Start() (err error) {
 	return
 }
 
-// Shutdown stoped http server
+// Shutdown id stopping http server.
 func (s *Server) Shutdown(ctx context.Context) error {
 	return s.server.Shutdown(ctx)
 }

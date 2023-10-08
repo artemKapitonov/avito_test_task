@@ -6,9 +6,9 @@ import (
 )
 
 func main() {
-	app := app.New()
+	a := app.New()
 
-	if err := app.Run(); err != nil {
+	if err := a.Run(); err != nil {
 		logrus.Fatalf("Can't start application: %s", err.Error())
 	}
 }
