@@ -2,7 +2,6 @@ package v1
 
 import (
 	"github.com/artemKapitonov/avito_test_task/internal/pkg/usecase"
-
 	"github.com/gin-gonic/gin"
 )
 

@@ -15,6 +15,7 @@ import (
 	"github.com/artemKapitonov/avito_test_task/internal/pkg/usecase/storage"
 	migrate "github.com/artemKapitonov/avito_test_task/migrations"
 	"github.com/artemKapitonov/avito_test_task/pkg/client/postgresql"
+	"github.com/artemKapitonov/avito_test_task/pkg/logging"
 	httpserver "github.com/artemKapitonov/avito_test_task/pkg/server"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
@@ -23,7 +24,6 @@ import (
 
 // App structure of application.
 type App struct {
-	logger            *slog.Logger
 	Controller        *v1.Controller
 	UseCase           *usecase.UseCase
 	Storage           *storage.Storage
@@ -33,29 +33,23 @@ type App struct {
 
 // New application.
 func New() *App {
+	logger := logging.New()
 
-	file, err := os.Open("logs/all.log")
-	if err != nil {
-		return nil
-	}
-
-	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
-	// Set Gin mode to TestMode.
 	gin.SetMode(gin.TestMode)
 
 	slog.SetDefault(logger)
 
 	// Initialize configurations
 	if err := config.Init(); err != nil {
-		logger.Error("Can't init configs Error: %s", err.Error())
+		slog.Error("Can't init configs Error:", err)
 	}
 
 	// Load environment variables from .env file.
 	if err := godotenv.Load(".env"); err != nil {
-		logger.Error("Can't load env Error: %s", err.Error())
+		slog.Error("Can't load env Error:", err)
 	}
 
-	app := &App{}
+	var app = &App{}
 
 	// Get API Layer token from environment variable.
 	token := os.Getenv("API_LAYER_TOKEN")
@@ -77,18 +71,16 @@ func New() *App {
 	})
 
 	if err != nil {
-		logger.Error("Can't connect to database Error: %s", err.Error())
+		slog.Error("Can't connect to database Error:", err)
+	} else {
+		slog.Info("Database connection successful")
 	}
-
-	logger.Info("Database connection successful")
 
 	if err := migrate.Create(db); err != nil {
-		logger.Error("Can't create migrations Error: %s", err.Error())
+		slog.Error("Can't create migrations Error:", err)
 	}
 
-	app.logger = logger
-
-	app.CurrencyConverter = convert.New(token, app.logger)
+	app.CurrencyConverter = convert.New(token)
 
 	app.Storage = storage.New(db)
 
@@ -96,7 +88,7 @@ func New() *App {
 
 	app.Controller = v1.New(app.UseCase)
 
-	app.Server = httpserver.New(app.Controller.InitRoutes(), port, app.logger)
+	app.Server = httpserver.New(app.Controller.InitRoutes(), port)
 
 	return app
 }
@@ -111,7 +103,8 @@ func (a *App) Run() error {
 	if err != nil {
 		return err
 	}
-	a.logger.Info("App Shutting down")
+
+	slog.Info("App Shutting down")
 
 	return nil
 }

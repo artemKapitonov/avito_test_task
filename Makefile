@@ -4,7 +4,7 @@
 lint:
 	golangci-lint run
 
-go-build:
+run:
 	go build -o ./bin/avito-test-task ./cmd/avito-test-task
 	./bin/avito-test-task
 

@@ -9,7 +9,6 @@ import (
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/sirupsen/logrus"
 )
 
 // Client is an interface for PostgresSQL client operations
@@ -70,13 +69,12 @@ func ConnectToDB(ctx context.Context, cfg Config) (db *pgxpool.Pool, err error) 
 		}, maxAttempts, 5*time.Second)
 
 	if err != nil {
-		logrus.Fatalf("Do with tries Error: %s", err.Error())
+		return nil, err
 	}
 
 	if err := db.Ping(ctx); err != nil {
 		return nil, err
 	}
 
-	logrus.Println("Database connection successful")
 	return db, nil
 }

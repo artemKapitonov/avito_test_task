@@ -1,0 +1,7 @@
+{"time":"2023-10-29T16:58:43.300027835+03:00","level":"INFO","msg":"Database connection successful"}
+{"time":"2023-10-29T16:58:43.31117389+03:00","level":"INFO","msg":"goose: no migrations to run. current version: 20230603101000"}
+{"time":"2023-10-29T16:58:43.311396667+03:00","level":"INFO","msg":"Server started at: %s","!BADKEY":":8080"}
+{"time":"2023-10-29T16:58:44.218110967+03:00","level":"INFO","msg":"Rub to USD Rate updated, now rate is 94.20"}
+{"time":"2023-10-29T16:59:44.836408609+03:00","level":"INFO","msg":"Rub to USD Rate updated, now rate is 94.20"}
+{"time":"2023-10-29T17:00:45.256047574+03:00","level":"INFO","msg":"Rub to USD Rate updated, now rate is 94.20"}
+{"time":"2023-10-29T17:00:54.314404636+03:00","level":"INFO","msg":"App Shutting down"}

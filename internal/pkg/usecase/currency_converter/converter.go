@@ -5,11 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
-
-	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -19,7 +18,8 @@ var (
 //go:generate mockgen -source=balance.go -destination=mock/currency_mock.go
 
 // CurrencyConvert is a struct for currency conversion.
-type CurrencyConvert struct{}
+type CurrencyConvert struct {
+}
 
 // New creates a new instance of CurrencyConvert.
 func New(token string) *CurrencyConvert {
@@ -55,41 +55,40 @@ func updateRubToUSDRate(token string) {
 
 		req, err := http.NewRequestWithContext(context.TODO(), http.MethodGet, url, nil)
 		if err != nil {
-			logrus.Fatalf("Can't initialize request Error: %s", err.Error())
+			slog.Error("Can't initialize request Error:", err)
 		}
 
 		req.Header.Set("apikey", token)
 
 		res, err := client.Do(req)
 		if res.Body == nil || err != nil {
-			logrus.Fatal("Can't do request for currency converting")
+			slog.Error("Can't do request for currency converting")
 		}
 
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
-			logrus.Fatal("Can't read response for convertation")
+			slog.Error("Can't read response for convertation")
 		}
 
 		// Unmarshal the response body into the ConverterResponse struct.
 		if err := json.Unmarshal(body, &response); err != nil {
-			logrus.Fatalf("Can't unmarshal response body Error: %s", err.Error())
+			slog.Error("Can't unmarshal response body Error:", err)
 		}
 
 		rubToUsdRate = response.Result
 
 		// Print the updated rate.
-		logrus.Printf("Rub to USD Rate updated, now rate is %.2f", rubToUsdRate)
+		slog.Info(fmt.Sprintf("Rub to USD Rate updated, now rate is %.2f", rubToUsdRate))
 		time.Sleep(time.Minute)
 
 		if err := res.Body.Close(); err != nil {
-			logrus.Warnf("Can't close convert response body Error: %s", err.Error())
+			slog.Warn("Can't close convert response body Error:", err)
 		}
 	}
 }
 
 // Convert converts the given amount from one currency to another.
 func (c *CurrencyConvert) Convert(amount float64, fromCurrency string) (float64, error) {
-
 	if fromCurrency == "USD" {
 		return strconv.ParseFloat(fmt.Sprintf("%.2f", amount*rubToUsdRate), 64)
 	}
