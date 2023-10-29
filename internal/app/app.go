@@ -1,6 +1,7 @@
 package app
 
 import (
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -17,12 +18,12 @@ import (
 	httpserver "github.com/artemKapitonov/avito_test_task/pkg/server"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 )
 
 // App structure of application.
 type App struct {
+	logger            *slog.Logger
 	Controller        *v1.Controller
 	UseCase           *usecase.UseCase
 	Storage           *storage.Storage
@@ -32,20 +33,26 @@ type App struct {
 
 // New application.
 func New() *App {
+
+	file, err := os.Open("logs/all.log")
+	if err != nil {
+		return nil
+	}
+
+	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
 	// Set Gin mode to TestMode.
 	gin.SetMode(gin.TestMode)
 
-	// Set logrus formatter to JSONFormatter.
-	logrus.SetFormatter(&logrus.JSONFormatter{})
+	slog.SetDefault(logger)
 
 	// Initialize configurations
 	if err := config.Init(); err != nil {
-		logrus.Fatalf("Can't init configs Error: %s", err.Error())
+		logger.Error("Can't init configs Error: %s", err.Error())
 	}
 
 	// Load environment variables from .env file.
 	if err := godotenv.Load(".env"); err != nil {
-		logrus.Fatalf("Can't load env Error: %s", err.Error())
+		logger.Error("Can't load env Error: %s", err.Error())
 	}
 
 	app := &App{}
@@ -70,14 +77,18 @@ func New() *App {
 	})
 
 	if err != nil {
-		logrus.Fatalf("Can't connect to database Error: %s", err.Error())
+		logger.Error("Can't connect to database Error: %s", err.Error())
 	}
+
+	logger.Info("Database connection successful")
 
 	if err := migrate.Create(db); err != nil {
-		logrus.Fatalf("Can't create migrations Error: %s", err.Error())
+		logger.Error("Can't create migrations Error: %s", err.Error())
 	}
 
-	app.CurrencyConverter = convert.New(token)
+	app.logger = logger
+
+	app.CurrencyConverter = convert.New(token, app.logger)
 
 	app.Storage = storage.New(db)
 
@@ -85,7 +96,7 @@ func New() *App {
 
 	app.Controller = v1.New(app.UseCase)
 
-	app.Server = httpserver.New(app.Controller.InitRoutes(), port)
+	app.Server = httpserver.New(app.Controller.InitRoutes(), port, app.logger)
 
 	return app
 }
@@ -100,6 +111,7 @@ func (a *App) Run() error {
 	if err != nil {
 		return err
 	}
+	a.logger.Info("App Shutting down")
 
 	return nil
 }
@@ -115,8 +127,6 @@ func ShutdownApp(a *App) error {
 	}
 
 	defer a.Storage.Close()
-
-	logrus.Println("App Shuting down")
 
 	return nil
 }
