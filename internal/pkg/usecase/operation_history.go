@@ -6,7 +6,7 @@ import (
 	"github.com/artemKapitonov/avito_test_task/internal/pkg/entity"
 )
 
-// HistoryUseCase is a use case for operation history
+// HistoryUseCase is a use case for operation history.
 type HistoryUseCase struct {
 	OperationHistory
 }

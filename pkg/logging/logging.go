@@ -1,12 +1,24 @@
 package logging
 
 import (
+	"io"
 	"log/slog"
 	"os"
 )
 
-func New() *slog.Logger {
-	if err := os.MkdirAll("logs", 0777); err != nil {
+type Logger struct {
+	Logger *slog.Logger
+	Writer io.Writer
+}
+
+func New() *Logger {
+	err := os.RemoveAll("logs")
+	if err != nil {
+		panic(err)
+	}
+
+	err = os.MkdirAll("logs", 0777)
+	if err != nil {
 		panic(err)
 	}
 
@@ -15,7 +27,8 @@ func New() *slog.Logger {
 		panic(err)
 	}
 
-	logger := slog.New(slog.NewJSONHandler(logFile, nil))
-
-	return logger
+	return &Logger{
+		Logger: slog.New(slog.NewJSONHandler(logFile, nil)),
+		Writer: logFile,
+	}
 }

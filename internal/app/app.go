@@ -37,7 +37,7 @@ func New() *App {
 
 	gin.SetMode(gin.TestMode)
 
-	slog.SetDefault(logger)
+	slog.SetDefault(logger.Logger)
 
 	// Initialize configurations
 	if err := config.Init(); err != nil {
@@ -88,7 +88,7 @@ func New() *App {
 
 	app.Controller = v1.New(app.UseCase)
 
-	app.Server = httpserver.New(app.Controller.InitRoutes(), port)
+	app.Server = httpserver.New(app.Controller.InitRoutes(logger), port)
 
 	return app
 }

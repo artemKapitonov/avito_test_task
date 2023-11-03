@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/artemKapitonov/avito_test_task/internal/pkg/usecase"
+	"github.com/artemKapitonov/avito_test_task/pkg/logging"
 	"github.com/gin-gonic/gin"
 )
 
@@ -24,8 +25,10 @@ func New(uc *usecase.UseCase) *Controller {
 }
 
 // InitRoutes initializes the routes for the controller.
-func (c *Controller) InitRoutes() *gin.Engine {
-	router := gin.Default()
+func (c *Controller) InitRoutes(logger *logging.Logger) *gin.Engine {
+	router := gin.New()
+
+	router.Use(gin.LoggerWithWriter(logger.Writer))
 
 	// Account routes
 	account := router.Group("/account")

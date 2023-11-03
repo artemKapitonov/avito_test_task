@@ -1,4 +1,4 @@
-package convert
+package currencyconverter
 
 import (
 	"context"
@@ -88,8 +88,8 @@ func updateRubToUSDRate(token string) {
 }
 
 // Convert converts the given amount from one currency to another.
-func (c *CurrencyConvert) Convert(amount float64, fromCurrency string) (float64, error) {
-	if fromCurrency == "USD" {
+func (c *CurrencyConvert) Convert(amount float64, currency string) (float64, error) {
+	if currency == "USD" {
 		return strconv.ParseFloat(fmt.Sprintf("%.2f", amount*rubToUsdRate), 64)
 	}
 

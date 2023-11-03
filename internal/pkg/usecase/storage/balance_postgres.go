@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/jackc/pgx/v5"
 	"math"
 	"time"
+
+	"github.com/jackc/pgx/v5"
 
 	"github.com/artemKapitonov/avito_test_task/pkg/client/postgresql"
 )
@@ -83,8 +84,10 @@ func (b *Balance) Update(ctx context.Context, userID uint64, amount float64) err
 }
 
 // Transfer amount from users.
-func (b *Balance) Transfer(ctx context.Context, senderID, recipientID uint64, amount float64) (err error) { //TODO.
-	createdDT := time.Now()
+func (b *Balance) Transfer(ctx context.Context, senderID, recipientID uint64, amount float64) error {
+	var err error
+
+	var createdDT = time.Now()
 
 	tx, err := b.db.Begin(ctx)
 	if err != nil {
@@ -106,8 +109,7 @@ func (b *Balance) Transfer(ctx context.Context, senderID, recipientID uint64, am
 		return err
 	}
 
-	usersOperationQuerySend := fmt.Sprintf("insert into %s (user_id, operation_id) values($1, $2)",
-		usersOperationsTable)
+	usersOperationQuerySend := fmt.Sprintf("insert into %s (user_id, operation_id) values($1, $2)", usersOperationsTable)
 	_, err = tx.Exec(ctx, usersOperationQuerySend, senderID, sendOperationID)
 	if err != nil {
 		return err

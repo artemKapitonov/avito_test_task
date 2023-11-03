@@ -13,6 +13,6 @@ type CurrencyConverter interface {
 }
 
 // Convert is a method of CurrencyConvert that calls the Convert method of CurrencyConverter interface.
-func (c *CurrencyConvert) Convert(amount float64, fromCurrency, toCurrency string) (float64, error) {
-	return c.CurrencyConverter.Convert(amount, fromCurrency)
+func (c *CurrencyConvert) Convert(amount float64, currency string) (float64, error) {
+	return c.CurrencyConverter.Convert(amount, currency)
 }

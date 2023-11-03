@@ -11,7 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// Client is an interface for PostgresSQL client operations
+// Client is an interface for PostgresSQL client operations.
 type Client interface {
 	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
 	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
@@ -21,7 +21,7 @@ type Client interface {
 	Close()
 }
 
-// Config represents the configuration for connecting to PostgresSQL
+// Config represents the configuration for connecting to PostgresSQL.
 type Config struct {
 	Host     string
 	Port     string
@@ -31,7 +31,7 @@ type Config struct {
 	SSLMode  string
 }
 
-// ConnectionConfig creates a connection configuration for PostgresSQL
+// ConnectionConfig creates a connection configuration for PostgresSQL.
 func ConnectionConfig(cfg Config) (*pgxpool.Config, error) {
 	config, err := pgxpool.ParseConfig(fmt.Sprintf(
 		"user=%s password=%s host=%s port=%s dbname=%s sslmode=%s",
@@ -43,9 +43,14 @@ func ConnectionConfig(cfg Config) (*pgxpool.Config, error) {
 	return config, nil
 }
 
-// ConnectToDB connects to the PostgresSQL database
-func ConnectToDB(ctx context.Context, cfg Config) (db *pgxpool.Pool, err error) {
+// ConnectToDB connects to the PostgresSQL database.
+func ConnectToDB(ctx context.Context, cfg Config) (*pgxpool.Pool, error) {
+	var db *pgxpool.Pool
+
+	var err error
+
 	var maxAttempts = 5
+
 	connCfg, err := ConnectionConfig(cfg)
 	if err != nil {
 		return nil, err
@@ -61,7 +66,8 @@ func ConnectToDB(ctx context.Context, cfg Config) (db *pgxpool.Pool, err error) 
 				return err
 			}
 
-			if err := db.Ping(ctx); err != nil {
+			err := db.Ping(ctx)
+			if err != nil {
 				return err
 			}
 
