@@ -19,13 +19,15 @@ var (
 
 // CurrencyConvert is a struct for currency conversion.
 type CurrencyConvert struct {
+	log *slog.Logger
 }
 
 // New creates a new instance of CurrencyConvert.
-func New(token string) *CurrencyConvert {
-	go updateRubToUSDRate(token)
+func New(token string, log *slog.Logger) *CurrencyConvert {
+	conv := &CurrencyConvert{log: log}
+	go conv.updateRubToUSDRate(token)
 
-	return &CurrencyConvert{}
+	return conv
 }
 
 // ConverterResponse represents the response from the currency converter API.
@@ -43,46 +45,48 @@ type ConverterQuery struct {
 }
 
 // updateRubToUSDRate updates the Rub to USD exchange rate periodically.
-func updateRubToUSDRate(token string) {
-	// Rubles in 1 Dollar.
+func (c *CurrencyConvert) updateRubToUSDRate(token string) {
+	const op = "currencyconverter.updateRubToUSDRate"
+
+	log := c.log.With(slog.String("op", op))
+
+	const url = "https://api.apilayer.com/fixer/convert?to=RUB&from=USD&amount=1"
+
+	var response ConverterResponse
+
+	client := &http.Client{}
+
+	req, err := http.NewRequestWithContext(context.TODO(), http.MethodGet, url, nil)
+	if err != nil {
+		log.Error("Can't initialize request Error:", err)
+	}
+
+	req.Header.Set("apikey", token)
+
 	for {
-		// Set the URL for the API call.
-		url := "https://api.apilayer.com/fixer/convert?to=RUB&from=USD&amount=1"
-
-		var response ConverterResponse
-
-		client := &http.Client{}
-
-		req, err := http.NewRequestWithContext(context.TODO(), http.MethodGet, url, nil)
-		if err != nil {
-			slog.Error("Can't initialize request Error:", err)
-		}
-
-		req.Header.Set("apikey", token)
-
 		res, err := client.Do(req)
 		if res.Body == nil || err != nil {
-			slog.Error("Can't do request for currency converting")
+			log.Error("Can't do request for currency converting")
 		}
 
 		body, err := io.ReadAll(res.Body)
 		if err != nil {
-			slog.Error("Can't read response for convertation")
+			log.Error("Can't read response for conversion")
 		}
 
 		// Unmarshal the response body into the ConverterResponse struct.
 		if err := json.Unmarshal(body, &response); err != nil {
-			slog.Error("Can't unmarshal response body Error:", err)
+			log.Error("Can't unmarshal response body Error:", err)
 		}
 
 		rubToUsdRate = response.Result
 
 		// Print the updated rate.
-		slog.Info(fmt.Sprintf("Rub to USD Rate updated, now rate is %.2f", rubToUsdRate))
+		log.Info(fmt.Sprintf("Rub to USD Rate updated, now rate is %.2f", rubToUsdRate))
 		time.Sleep(time.Minute)
 
 		if err := res.Body.Close(); err != nil {
-			slog.Warn("Can't close convert response body Error:", err)
+			log.Warn("Can't close convert response body Error:", err)
 		}
 	}
 }

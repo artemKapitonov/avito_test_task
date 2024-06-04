@@ -6,6 +6,8 @@ import (
 	"log/slog"
 	"net/http"
 	"time"
+
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -15,11 +17,12 @@ const (
 
 // Server with HTTP protocol.
 type Server struct {
+	log    *slog.Logger
 	server *http.Server
 }
 
 // New is creating new http server.
-func New(handler http.Handler, port string) *Server {
+func New(handler http.Handler, port string, log *slog.Logger) *Server {
 	httpServer := &http.Server{
 		Handler:      handler,
 		ReadTimeout:  _defaultReadTimeout,
@@ -28,6 +31,7 @@ func New(handler http.Handler, port string) *Server {
 	}
 
 	s := &Server{
+		log:    log,
 		server: httpServer,
 	}
 
@@ -35,16 +39,17 @@ func New(handler http.Handler, port string) *Server {
 }
 
 // Start is starting http server.
-func (s *Server) Start() error {
-	var err error
+func (s *Server) Start() {
+	const op = "server.Start"
 
-	slog.Info(fmt.Sprintf("Server started at: %s", s.server.Addr))
+	log := s.log.With(slog.String("op", op))
 
-	go func() {
-		err = s.server.ListenAndServe()
-	}()
+	g := new(errgroup.Group)
 
-	return err
+	log.Info(fmt.Sprintf("Server started at: %s", s.server.Addr))
+
+	g.Go(s.server.ListenAndServe)
+
 }
 
 // Shutdown id stopping http server.

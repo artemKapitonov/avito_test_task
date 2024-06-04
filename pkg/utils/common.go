@@ -14,6 +14,7 @@ func DoWithTries(fn func() error, attempts int, duration time.Duration) error {
 			continue
 		}
 
+
 		return nil
 	}
 

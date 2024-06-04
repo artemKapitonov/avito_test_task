@@ -1,5 +1,7 @@
 .SILENT:
 
+db-up:
+	docker compose up db
 
 lint:
 	golangci-lint run

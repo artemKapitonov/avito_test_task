@@ -6,3 +6,8 @@ db:
   port: "5432"
   dbname: "postgres"
   sslmode: "disable"
+
+log:
+  level: "local"
+  handler: "json"
+  writer: "stdout"

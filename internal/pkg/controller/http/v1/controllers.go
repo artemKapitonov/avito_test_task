@@ -31,19 +31,30 @@ func (c *Controller) InitRoutes(logger *logging.Logger) *gin.Engine {
 	router.Use(gin.LoggerWithWriter(logger.Writer))
 
 	// Account routes
-	account := router.Group("/account")
-	{
-		account.POST("/", c.createUser)
-		account.GET("/:id", c.userByID)
-		account.PUT("/:id", c.updateBalance)
-		account.PUT("/transfer/:sender_id/:recipient_id", c.transfer)
+	account := c.RegisterAccountEndponts(router)
 
-		// History routes.
-		history := account.Group("/history")
-		{
-			history.GET("/:id", c.getHistory)
-		}
-	}
+	c.RegisterHisotryEndpoints(account)
 
 	return router
+}
+
+func (c *Controller) RegisterAccountEndponts(r *gin.Engine) *gin.RouterGroup {
+	account := r.Group("/account")
+	{
+		account.PUT("/:id", c.updateBalance)
+		account.PUT("/transfer/:sender_id/:recipient_id", c.transfer)
+		account.POST("/", c.createUser)
+		account.GET("/:id", c.userByID)
+	}
+
+	return account
+}
+
+func (c *Controller) RegisterHisotryEndpoints(account *gin.RouterGroup) *gin.RouterGroup {
+	history := account.Group("/history")
+	{
+		history.GET("/:id", c.getHistory)
+	}
+
+	return history
 }

@@ -1,6 +1,6 @@
 module github.com/artemKapitonov/avito_test_task
 
-go 1.20
+go 1.22.0
 
 require (
 	github.com/gin-gonic/gin v1.9.1
@@ -9,6 +9,7 @@ require (
 	github.com/pressly/goose v2.7.0+incompatible
 	github.com/spf13/viper v1.16.0
 	go.uber.org/mock v0.2.0
+	golang.org/x/sync v0.1.0
 )
 
 require (
@@ -45,7 +46,6 @@ require (
 	golang.org/x/arch v0.3.0 // indirect
 	golang.org/x/crypto v0.9.0 // indirect
 	golang.org/x/net v0.10.0 // indirect
-	golang.org/x/sync v0.1.0 // indirect
 	golang.org/x/sys v0.8.0 // indirect
 	golang.org/x/text v0.9.0 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect

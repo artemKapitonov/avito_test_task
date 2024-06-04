@@ -8,7 +8,6 @@ import (
 
 	"context"
 
-	"github.com/artemKapitonov/avito_test_task/internal/config"
 	v1 "github.com/artemKapitonov/avito_test_task/internal/pkg/controller/http/v1"
 	"github.com/artemKapitonov/avito_test_task/internal/pkg/usecase"
 	convert "github.com/artemKapitonov/avito_test_task/internal/pkg/usecase/currency_converter"
@@ -18,12 +17,12 @@ import (
 	"github.com/artemKapitonov/avito_test_task/pkg/logging"
 	httpserver "github.com/artemKapitonov/avito_test_task/pkg/server"
 	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
 
 // App structure of application.
 type App struct {
+	log               *slog.Logger
 	Controller        *v1.Controller
 	UseCase           *usecase.UseCase
 	Storage           *storage.Storage
@@ -33,23 +32,23 @@ type App struct {
 
 // New application.
 func New() *App {
-	logger := logging.New()
+	const op = "app.New"
+
+	var LoggerCfg = logging.Config{
+		Level:   viper.GetString("log.level"),
+		Handler: viper.GetString("log.handler"),
+		Writer:  viper.GetString("log.writer"),
+	}
+
+	logger := logging.New(LoggerCfg)
 
 	gin.SetMode(gin.TestMode)
 
-	slog.SetDefault(logger.Logger)
-
-	// Initialize configurations
-	if err := config.Init(); err != nil {
-		slog.Error("Can't init configs Error:", err)
-	}
-
-	// Load environment variables from .env file.
-	if err := godotenv.Load(".env"); err != nil {
-		slog.Error("Can't load env Error:", err)
-	}
-
 	var app = &App{}
+
+	app.log = logger.Logger
+
+	log := app.log.With(slog.String("op", op))
 
 	// Get API Layer token from environment variable.
 	token := os.Getenv("API_LAYER_TOKEN")
@@ -69,18 +68,17 @@ func New() *App {
 		DBName:   viper.GetString("db.dbname"),
 		SSLMode:  viper.GetString("db.sslmode"),
 	})
-
 	if err != nil {
-		slog.Error("Can't connect to database Error:", err)
+		log.Error("Failed to connect to postgres database Error:", err)
 	} else {
-		slog.Info("Database connection successful")
+		log.Info("Database connection successful")
 	}
 
 	if err := migrate.Create(db); err != nil {
-		slog.Error("Can't create migrations Error:", err)
+		log.Error("Can't create migrations Error:", err)
 	}
 
-	app.CurrencyConverter = convert.New(token)
+	app.CurrencyConverter = convert.New(token, app.log)
 
 	app.Storage = storage.New(db)
 
@@ -88,23 +86,25 @@ func New() *App {
 
 	app.Controller = v1.New(app.UseCase)
 
-	app.Server = httpserver.New(app.Controller.InitRoutes(logger), port)
+	app.Server = httpserver.New(app.Controller.InitRoutes(logger), port, app.log)
 
 	return app
 }
 
 // Run is starting application.
 func (a *App) Run() error {
-	if err := a.Server.Start(); err != nil {
-		return err
-	}
+	const op = "app.Run"
+
+	log := a.log.With(slog.String("op", op))
+
+	a.Server.Start()
 
 	err := ShutdownApp(a)
 	if err != nil {
 		return err
 	}
 
-	slog.Info("App Shutting down")
+	log.Info("App Shutting down")
 
 	return nil
 }
