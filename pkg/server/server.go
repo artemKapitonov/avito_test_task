@@ -2,7 +2,6 @@ package httpserver
 
 import (
 	"context"
-	"fmt"
 	"log/slog"
 	"net/http"
 	"time"
@@ -46,10 +45,9 @@ func (s *Server) Start() {
 
 	g := new(errgroup.Group)
 
-	log.Info(fmt.Sprintf("Server started at: %s", s.server.Addr))
+	log.Info("Server started at:" + s.server.Addr)
 
 	g.Go(s.server.ListenAndServe)
-
 }
 
 // Shutdown id stopping http server.

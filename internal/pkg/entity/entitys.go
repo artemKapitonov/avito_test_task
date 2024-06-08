@@ -2,7 +2,7 @@ package entity
 
 import "time"
 
-// User represents a user entity
+// User represents a user entity.
 type User struct {
 	ID        uint64    `json:"id,omitempty"`
 	Balance   float64   `json:"balance"`
@@ -10,7 +10,7 @@ type User struct {
 	CreatedDT time.Time `json:"created_dt,omitempty"`
 }
 
-// Operation represents an operation entity
+// Operation represents an operation entity.
 type Operation struct {
 	ID            uint64    `json:"id,omitempty"`
 	OperationType string    `json:"operation_type,omitempty"`

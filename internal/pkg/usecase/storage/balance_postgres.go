@@ -110,6 +110,7 @@ func (b *Balance) Transfer(ctx context.Context, senderID, recipientID uint64, am
 	}
 
 	usersOperationQuerySend := fmt.Sprintf("insert into %s (user_id, operation_id) values($1, $2)", usersOperationsTable)
+
 	_, err = tx.Exec(ctx, usersOperationQuerySend, senderID, sendOperationID)
 	if err != nil {
 		return err

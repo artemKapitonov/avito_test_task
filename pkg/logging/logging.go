@@ -30,7 +30,6 @@ type Config struct {
 
 // New setup new logging.Logger with config params.
 func New(cfg Config) *Logger {
-
 	lvl := selectLoggerLevel(cfg.Level)
 
 	writer := selectLoggerWriter(cfg.Writer)
@@ -44,17 +43,13 @@ func New(cfg Config) *Logger {
 }
 
 func selectLoggerWriter(w string) io.Writer {
-
 	var writer io.Writer
 
 	switch w {
-
 	case writerFile:
 		writer = getLogFile()
-
 	case writerStdout:
 		writer = os.Stdout
-
 	default:
 		writer = os.Stdout
 	}
