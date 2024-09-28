@@ -18,7 +18,6 @@ func Create(dbPool *pgxpool.Pool) error {
 		return err
 	}
 
-	// выполнение миграций
 	if err := goose.Up(db, "migrations/schema"); err != nil {
 		return err
 	}

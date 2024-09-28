@@ -18,27 +18,24 @@ type Balance interface {
 
 // updateBalance updates the balance of a user.
 func (c *Controller) updateBalance(ctx *gin.Context) {
-	// Get the user ID from the URL parameter.
 	param := ctx.Param("id")
 
 	userID, err := strconv.ParseUint(param, 10, 64)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, "invalid id param", err)
+		errorResponse(ctx, http.StatusBadRequest, "invalid id param", nil)
 		return
 	}
 
-	// Get the amount from the query parameter.
 	query := ctx.Query("amount")
 
 	amount, err := strconv.ParseFloat(query, 64)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, "invalid amount param", err)
+		errorResponse(ctx, http.StatusBadRequest, "invalid amount param", nil)
 		return
 	}
 
-	// Call the Update method of the Balance interface.
 	if err := c.Balance.Update(ctx, userID, amount); err != nil {
-		errorResponse(ctx, http.StatusInternalServerError, "Can't do operation", err)
+		errorResponse(ctx, http.StatusInternalServerError, "Can't do operation", nil)
 		return
 	}
 
@@ -54,7 +51,7 @@ func (c *Controller) transfer(ctx *gin.Context) {
 
 	senderID, err := strconv.ParseUint(param, 10, 64)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, "invalid sender id param", err)
+		errorResponse(ctx, http.StatusBadRequest, "invalid sender id param", nil)
 		return
 	}
 
@@ -63,7 +60,7 @@ func (c *Controller) transfer(ctx *gin.Context) {
 
 	recipientID, err := strconv.ParseUint(param, 10, 64)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, "invalid recipient id param", err)
+		errorResponse(ctx, http.StatusBadRequest, "invalid recipient id param", nil)
 		return
 	}
 
@@ -72,14 +69,14 @@ func (c *Controller) transfer(ctx *gin.Context) {
 
 	amount, err := strconv.ParseFloat(query, 64)
 	if err != nil || amount <= 0 {
-		errorResponse(ctx, http.StatusBadRequest, "invalid amount param", err)
+		errorResponse(ctx, http.StatusBadRequest, "invalid amount param", nil)
 		return
 	}
 
 	// Get the currency from the request.
 	fromCurrency, err := selectCurrency(ctx)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, "Can't define currency", err)
+		errorResponse(ctx, http.StatusBadRequest, "Can't define currency", nil)
 		return
 	}
 
@@ -87,14 +84,14 @@ func (c *Controller) transfer(ctx *gin.Context) {
 	if fromCurrency == UsdCurrency {
 		amount, err = c.CurrencyConverter.Convert(amount, fromCurrency)
 		if err != nil {
-			errorResponse(ctx, http.StatusInternalServerError, "Can't convert currency", err)
+			errorResponse(ctx, http.StatusInternalServerError, "Can't convert currency", nil)
 			return
 		}
 	}
 
 	// Call the Transfer method of the Balance interface.
 	if err := c.Balance.Transfer(ctx, senderID, recipientID, amount); err != nil {
-		errorResponse(ctx, http.StatusInternalServerError, "Can't make a transfer", err)
+		errorResponse(ctx, http.StatusInternalServerError, "Can't make a transfer", nil)
 		return
 	}
 

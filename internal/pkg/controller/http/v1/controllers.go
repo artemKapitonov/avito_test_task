@@ -28,9 +28,7 @@ func New(uc *usecase.UseCase) *Controller {
 func (c *Controller) InitRoutes(logger *logging.Logger) *gin.Engine {
 	router := gin.New()
 
-	router.Use(gin.LoggerWithWriter(logger.Writer))
-
-	// Account routes
+	router.Use(InitLogger(logger))
 	account := c.RegisterAccountEndponts(router)
 
 	c.RegisterHisotryEndpoints(account)

@@ -1,7 +1,6 @@
 package currencyconverter
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -54,11 +53,11 @@ func (c *CurrencyConvert) updateRubToUSDRate(token string) {
 
 	var response ConverterResponse
 
-	client := &http.Client{}
+	var client *http.Client = &http.Client{}
 
-	req, err := http.NewRequestWithContext(context.TODO(), http.MethodGet, url, nil)
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		log.Error("Can't initialize request Error:", err)
+		log.Error("Can't initialize request ", "Error", err)
 	}
 
 	req.Header.Set("apikey", token)
@@ -76,7 +75,7 @@ func (c *CurrencyConvert) updateRubToUSDRate(token string) {
 
 		// Unmarshal the response body into the ConverterResponse struct.
 		if err := json.Unmarshal(body, &response); err != nil {
-			log.Error("Can't unmarshal response body Error:", err)
+			log.Error("Can't unmarshal response body", "error", err)
 		}
 
 		rubToUsdRate = response.Result
@@ -86,7 +85,7 @@ func (c *CurrencyConvert) updateRubToUSDRate(token string) {
 		time.Sleep(time.Minute)
 
 		if err := res.Body.Close(); err != nil {
-			log.Warn("Can't close convert response body Error:", err)
+			log.Warn("Can't close convert response body", "error", err)
 		}
 	}
 }

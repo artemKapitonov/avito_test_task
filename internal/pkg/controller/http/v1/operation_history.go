@@ -24,7 +24,7 @@ func (c *Controller) getHistory(ctx *gin.Context) {
 
 	userID, err := strconv.ParseUint(paramID, 10, 64)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, "invalid 'id' param", err)
+		errorResponse(ctx, http.StatusBadRequest, "invalid 'id' param", nil)
 		return
 	}
 
@@ -35,18 +35,18 @@ func (c *Controller) getHistory(ctx *gin.Context) {
 
 	isDesc, err := selectDescParam(ctx, sort)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, "invalid 'is_descreasing' param", err)
+		errorResponse(ctx, http.StatusBadRequest, "invalid 'is_descreasing' param", nil)
 	}
 
 	currency, err := selectCurrency(ctx)
 	if err != nil {
-		errorResponse(ctx, http.StatusBadRequest, "Can't define currency", err)
+		errorResponse(ctx, http.StatusBadRequest, "Can't define currency", nil)
 		return
 	}
 
 	operations, err := c.OperationHistory.Get(ctx, userID, sort, isDesc)
 	if err != nil {
-		errorResponse(ctx, http.StatusInternalServerError, "Can't get user history", err)
+		errorResponse(ctx, http.StatusInternalServerError, "Can't get user history", nil)
 		return
 	}
 
@@ -56,7 +56,7 @@ func (c *Controller) getHistory(ctx *gin.Context) {
 		for i := range operations {
 			operations[i].Amount, err = c.CurrencyConverter.Convert(operations[i].Amount, fromCurrency)
 			if err != nil {
-				errorResponse(ctx, http.StatusInternalServerError, "Can't do convertation", err)
+				errorResponse(ctx, http.StatusInternalServerError, "Can't do convertation", nil)
 				return
 			}
 

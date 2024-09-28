@@ -34,25 +34,26 @@ type App struct {
 func New() *App {
 	const op = "app.New"
 
-	var LoggerCfg = logging.Config{
-		Level:   viper.GetString("log.level"),
-		Handler: viper.GetString("log.handler"),
-		Writer:  viper.GetString("log.writer"),
+	var LoggerCfg = logging.LoggerOptions{
+		IsLocal:    viper.GetBool("log.is_local"),
+		Level:      viper.GetString("log.level"),
+		AddSource:  viper.GetBool("log.add_source"),
+		IsJSON:     viper.GetBool("log.is_json"),
+		SetDefault: viper.GetBool("log.set_default"),
 	}
 
-	logger := logging.New(LoggerCfg)
+	logger := logging.NewLogger(LoggerCfg)
 
-	gin.SetMode(gin.TestMode)
+	gin.SetMode(gin.DebugMode)
 
 	var app = &App{}
 
-	app.log = logger.Logger
+	app.log = logger
 
 	log := app.log.With(slog.String("op", op))
 
 	// Get API Layer token from environment variable.
 	token := os.Getenv("API_LAYER_TOKEN")
-
 	// Get port from configuration
 	port := viper.GetString("port")
 
@@ -64,18 +65,18 @@ func New() *App {
 		Host:     viper.GetString("db.host"),
 		Port:     viper.GetString("db.port"),
 		Username: viper.GetString("db.username"),
-		Password: os.Getenv("DATABASE_PASSWORD"),
+		Password: viper.GetString("db.password"),
 		DBName:   viper.GetString("db.dbname"),
 		SSLMode:  viper.GetString("db.sslmode"),
 	})
 	if err != nil {
-		log.Error("Failed to connect to postgres database Error:", err)
+		log.Error("Failed to connect to postgres database ", "error:", err)
 	} else {
 		log.Info("Database connection successful")
 	}
 
 	if err := migrate.Create(db); err != nil {
-		log.Error("Can't create migrations Error:", err)
+		log.Error("Can't create migrations ", "error", err)
 	}
 
 	app.CurrencyConverter = convert.New(token, app.log)
@@ -86,7 +87,7 @@ func New() *App {
 
 	app.Controller = v1.New(app.UseCase)
 
-	app.Server = httpserver.New(app.Controller.InitRoutes(logger), port, app.log)
+	app.Server = httpserver.New(app.Controller.InitRoutes(app.log), port, app.log)
 
 	return app
 }
